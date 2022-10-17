@@ -41,7 +41,7 @@ defmodule Appleseed.WeightedDag do
     with true <- Enum.member?(d.vertices, src),
          true <- Enum.member?(d.vertices, tar),
          {:exists, false} <- {:exists, Enum.member?(d.edges, edge)} do
-         ##{:path, false} <- {:path, path?(d, tar, src)} do
+      ## {:path, false} <- {:path, path?(d, tar, src)} do
       {:ok, %Dag{d | edges: MapSet.put(d.edges, edge)}}
     else
       false ->

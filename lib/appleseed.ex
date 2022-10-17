@@ -22,53 +22,54 @@ defmodule Appleseed do
 
   def trust(source, dag) do
     new_s = %V{source | energy: in_0(), trust: 0}
-    v_0 = MapSet.new()
-    v_0 = MapSet.put(v_0, new_s)
+    v_0 = MapSet.put(MapSet.new(), new_s)
     trust_loop(source, v_0, dag)
   end
 
   defp trust_loop(source, vs, dag) do
     IO.puts("The size of incoming vertices: #{MapSet.size(vs)}")
+
     new_vs =
-      Enum.reduce(vs, MapSet.new(),
-        fn v, acc ->
-          new_v = %V{v | energy: 0}
-          MapSet.put(acc, new_v)
-        end)
-
-    Enum.map(vs, fn v ->
-      new_vs = update_trust(new_vs, v)
-      edges = Dag.edges(dag)
-
-      
-        Enum.reduce(edges, {new_vs, dag}, fn e, acc ->
-        if e.src.name == v.name do
-          tar = e.tar
-          IO.puts("Found new vertex: #{tar.name}")
-          new_tar =
-            Enum.find(new_vs, false, fn nv ->
-              nv.name == tar.name
-            end)
-
-          case new_tar do
-            false ->
-              IO.puts("New vertex not in new set: #{tar.name}")
-              new_v = %V{tar | energy: 0, trust: 0}
-              {:ok, new_d} = Dag.add_edge(elem(acc, 1), tar, source, 1)
-              {MapSet.put(elem(acc, 0), new_v), new_d}
-
-            nv ->
-              w = comp_weight(e, dag)
-              new_nv = %V{nv | energy: nv.energy + d() * old_energy(nv, vs) * w}
-              new_vs = MapSet.delete(elem(acc, 0), nv)
-              {MapSet.put(new_vs, new_nv), elem(acc, 1)}
-          end
-        else
-          acc
-        end
+      Enum.reduce(vs, MapSet.new(), fn v, acc ->
+        new_v = %V{v | energy: 0}
+        MapSet.put(acc, new_v)
       end)
-    end)
 
+    {new_vs, dag} =
+      Enum.reduce(vs, {new_vs, dag}, fn v, acc ->
+        new_vs = update_trust(elem(acc, 0), v)
+        edges = Dag.edges(elem(acc, 1))
+
+        Enum.reduce(edges, {new_vs, dag}, fn e, acc ->
+          if e.src.name == v.name do
+            tar = e.tar
+            IO.puts("Found new vertex: #{tar.name}")
+
+            new_tar =
+              Enum.find(new_vs, false, fn nv ->
+                nv.name == tar.name
+              end)
+
+            case new_tar do
+              false ->
+                IO.puts("New vertex not in new set: #{tar.name}")
+                new_v = %V{tar | energy: 0, trust: 0}
+                {:ok, new_d} = Dag.add_edge(elem(acc, 1), tar, source, 1)
+                {MapSet.put(elem(acc, 0), new_v), new_d}
+
+              nv ->
+                w = comp_weight(e, dag)
+                new_nv = %V{nv | energy: nv.energy + d() * old_energy(nv, vs) * w}
+                new_vs = MapSet.delete(elem(acc, 0), nv)
+                {MapSet.put(new_vs, new_nv), elem(acc, 1)}
+            end
+          else
+            acc
+          end
+        end)
+      end)
+
+    IO.puts("new set: #{MapSet.size(new_vs)} and old set: #{MapSet.size(vs)}")
     m = compute_max(new_vs, vs)
 
     if m <= t_c() do
