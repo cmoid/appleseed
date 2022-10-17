@@ -1,7 +1,7 @@
 defmodule AppleseedWeightedDagTest do
   use ExUnit.Case
   doctest Appleseed.WeightedDag
-  
+
   alias Appleseed.WeightedDag, as: Dag
   alias Appleseed.Vertex, as: V
 
@@ -31,6 +31,5 @@ defmodule AppleseedWeightedDagTest do
     {:ok, d} = Dag.add_vertex(d, v2)
     {:ok, d} = Dag.add_edge(d, v1, v2, 1)
     assert length(Dag.edges(d)) == 1
-    
   end
 end

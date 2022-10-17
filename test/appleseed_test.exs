@@ -21,9 +21,7 @@ defmodule AppleseedTest do
     source = find_vertex("a", Dag.vertices(dag))
 
     trust(source, dag)
-    
   end
-
 
   defp create_vertices(vertices, dag) do
     Enum.reduce(vertices, dag, fn e, acc ->
@@ -43,7 +41,7 @@ defmodule AppleseedTest do
 
   defp find_vertex(name, vertices) do
     Enum.find(vertices, fn v ->
-        v.name == name
+      v.name == name
     end)
   end
 end

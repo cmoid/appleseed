@@ -81,6 +81,7 @@ defmodule Appleseed do
 
   defp compute_max(new_vs, old_vs) do
     IO.puts("new size: #{MapSet.size(new_vs)} and old size: #{MapSet.size(old_vs)}")
+
     Enum.reduce(new_vs, 0, fn nv, acc ->
       ov =
         Enum.find(old_vs, false, fn v ->
