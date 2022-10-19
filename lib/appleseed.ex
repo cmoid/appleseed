@@ -21,6 +21,7 @@ defmodule Appleseed do
   end
 
   defp trust_loop(source, vs, dag) do
+    ##print_set(vs)
     new_vs =
       Enum.reduce(vs, MapSet.new(), fn v, acc ->
         MapSet.put(acc, %V{v | energy: 0})

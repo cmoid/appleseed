@@ -37,6 +37,22 @@ defmodule AppleseedTest do
     trust(source, graph)
   end
 
+  test "thesis example2" do
+    {:ok, graph} = Graph.create()
+    graph = create_vertices(["a", "b", "c", "d", "x", "y"], graph)
+    assert length(Graph.vertices(graph)) == 6
+
+    graph = add_edge("a", "b", 0.8, graph)
+    graph = add_edge("a", "c", 0.8, graph)
+    graph = add_edge("b", "d", 0.8, graph)
+    graph = add_edge("x", "y", 0.8, graph)
+    assert length(Graph.edges(graph)) == 4
+
+    source = find_vertex("a", Graph.vertices(graph))
+
+    trust(source, graph)
+  end
+
   defp create_vertices(vertices, graph) do
     Enum.reduce(vertices, graph, fn e, acc ->
       {:ok, v} = V.create(e)
