@@ -5,7 +5,7 @@ defmodule Appleseed do
 
   """
 
-  alias Appleseed.WeightedDag, as: Dag
+  alias Appleseed.WeightedGraph, as: Graph
   alias Appleseed.Vertex, as: V
 
   @d 0.85
@@ -29,31 +29,41 @@ defmodule Appleseed do
     {new_vs, dag} =
       Enum.reduce(vs, {new_vs, dag}, fn v, acc ->
         n_vs = update_trust(elem(acc, 0), v)
-        edges = Dag.edges(elem(acc, 1))
+        edges = Graph.edges(elem(acc, 1))
 
         Enum.reduce(edges, {n_vs, elem(acc, 1)}, fn e, acc2 ->
           if e.src.name == v.name do
             tar = e.tar
+
             new_tar =
               Enum.find(elem(acc2, 0), false, fn nv ->
                 nv.name == tar.name
               end)
+
             new_d = elem(acc2, 1)
             new_vs = elem(acc2, 0)
+
             {new_tar, new_vs, new_d} =
               case new_tar do
                 false ->
                   new_tar = %V{tar | energy: 0, trust: 0}
-                  {:ok, new_d} = Dag.add_edge(new_d, tar, source, 1)
+                  {:ok, new_d} = Graph.add_edge(new_d, tar, source, 1)
                   new_vs = MapSet.put(new_vs, new_tar)
                   {new_tar, new_vs, new_d}
+
                 _all_val ->
                   {new_tar, new_vs, new_d}
               end
 
             w = comp_weight(e, new_d)
-            new_nv = %V{new_tar | energy: new_tar.energy +
-                        @d * v.energy * w}
+
+            new_nv = %V{
+              new_tar
+              | energy:
+                  new_tar.energy +
+                    @d * v.energy * w
+            }
+
             new_vs = MapSet.delete(new_vs, new_tar)
             {MapSet.put(new_vs, new_nv), new_d}
           else
@@ -63,8 +73,10 @@ defmodule Appleseed do
       end)
 
     m = compute_max(new_vs, vs)
+
     if m <= @t_c do
       res = collect_trusts(new_vs)
+
       Enum.map(res, fn t ->
         IO.puts("v: #{hd(t)} t: #{hd(tl(t))}")
       end)
@@ -99,7 +111,7 @@ defmodule Appleseed do
 
   defp comp_weight(e, dag) do
     e.weight /
-      List.foldl(Dag.edges(dag), 0, fn edg, acc ->
+      List.foldl(Graph.edges(dag), 0, fn edg, acc ->
         if edg.src.name == e.src.name do
           acc + edg.weight
         else
