@@ -8,20 +8,14 @@ defmodule Appleseed do
   alias Appleseed.WeightedDag, as: Dag
   alias Appleseed.Vertex, as: V
 
-  defp d() do
-    0.85
-  end
+  @d 0.85
 
-  defp t_c() do
-    0.01
-  end
+  @t_c 0.01
 
-  defp in_0() do
-    200
-  end
+  @in_0 200
 
   def trust(source, dag) do
-    new_s = %V{source | energy: in_0(), trust: 0}
+    new_s = %V{source | energy: @in_0, trust: 0}
     v_0 = MapSet.put(MapSet.new(), new_s)
     trust_loop(source, v_0, dag)
   end
