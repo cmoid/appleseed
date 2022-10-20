@@ -10,7 +10,7 @@ defmodule Appleseed do
 
   @d 0.85
 
-  @t_c 0.01
+  @t_c 0.001
 
   @in_0 200
 
