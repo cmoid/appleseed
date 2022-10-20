@@ -21,7 +21,6 @@ defmodule Appleseed do
   end
 
   defp trust_loop(source, vs, dag) do
-    ##print_set(vs)
     new_vs =
       Enum.reduce(vs, MapSet.new(), fn v, acc ->
         MapSet.put(acc, %V{v | energy: 0})
@@ -29,7 +28,13 @@ defmodule Appleseed do
 
     {new_vs, dag} =
       Enum.reduce(vs, {new_vs, dag}, fn v, acc ->
-        n_vs = update_trust(elem(acc, 0), v)
+        n_vs =
+          case (v.name == source.name) do
+            true ->
+              update_trust(elem(acc, 0), v, 0.9999)
+            _else ->
+              update_trust(elem(acc, 0), v, @d)
+          end
         edges = Graph.edges(elem(acc, 1))
 
         Enum.reduce(edges, {n_vs, elem(acc, 1)}, fn e, acc2 ->
@@ -58,12 +63,20 @@ defmodule Appleseed do
 
             w = comp_weight(e, new_d)
 
-            new_nv = %V{
-              new_tar
-              | energy:
-                  new_tar.energy +
-                    @d * v.energy * w
-            }
+            new_nv = case (v.name == source.name) do
+                       true ->
+                         %V{new_tar
+                            | energy:
+                            new_tar.energy +
+                            1 * v.energy * w
+                           }
+                       _Else ->
+                         %V{new_tar
+                            | energy:
+                            new_tar.energy +
+                            @d * v.energy * w
+                           }
+                     end
 
             new_vs = MapSet.delete(new_vs, new_tar)
             {MapSet.put(new_vs, new_nv), new_d}
@@ -79,7 +92,7 @@ defmodule Appleseed do
       res = collect_trusts(new_vs)
 
       Enum.map(res, fn t ->
-        IO.puts("v: #{hd(t)} t: #{hd(tl(t))}")
+        IO.puts("v: #{hd(t)} e: #{hd(tl(t))} t: #{hd(tl(tl(t)))}")
       end)
     else
       trust_loop(source, new_vs, dag)
@@ -106,7 +119,7 @@ defmodule Appleseed do
 
   defp collect_trusts(new_vs) do
     Enum.map(new_vs, fn v ->
-      [v.name, v.trust]
+      [v.name, v.energy, v.trust]
     end)
   end
 
@@ -121,8 +134,8 @@ defmodule Appleseed do
       end)
   end
 
-  defp update_trust(new_vs, v) do
-    new_trust = v.trust + (1 - @d) * v.energy
+  defp update_trust(new_vs, v, sf) do
+    new_trust = v.trust + (1 - sf) * v.energy
 
     new_v =
       Enum.find(new_vs, fn ov ->
