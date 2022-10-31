@@ -7,11 +7,13 @@ defmodule AppleseedTest do
 
   test "simple example" do
     {:ok, graph} = Graph.create()
-    graph = create_vertices(["a", "b", "c"], graph)
-    assert length(Graph.vertices(graph)) == 3
+    graph =
+      graph
+    |> create_vertices(["a", "b", "c"])
+    |> add_edge("a", "b", 0.5)
+    |> add_edge("a", "c", 0.5)
 
-    graph = add_edge("a", "b", 0.5, graph)
-    graph = add_edge("a", "c", 0.5, graph)
+    assert length(Graph.vertices(graph)) == 3
     assert length(Graph.edges(graph)) == 2
 
     source = find_vertex("a", Graph.vertices(graph))
@@ -21,15 +23,16 @@ defmodule AppleseedTest do
 
   test "thesis example" do
     {:ok, graph} = Graph.create()
-    graph = create_vertices(["a", "b", "c", "d", "e", "f", "g"], graph)
+    graph =
+      graph
+      |> create_vertices(["a", "b", "c", "d", "e", "f", "g"])
+      |> add_edge("a", "b", 0.7)
+      |> add_edge("a", "d", 0.7)
+      |> add_edge("b", "c", 0.25)
+      |> add_edge("d", "e", 1.0)
+      |> add_edge("d", "f", 1.0)
+      |> add_edge("d", "g", 1.0)
     assert length(Graph.vertices(graph)) == 7
-
-    graph = add_edge("a", "b", 0.7, graph)
-    graph = add_edge("a", "d", 0.7, graph)
-    graph = add_edge("b", "c", 0.25, graph)
-    graph = add_edge("d", "e", 1.0, graph)
-    graph = add_edge("d", "f", 1.0, graph)
-    graph = add_edge("d", "g", 1.0, graph)
     assert length(Graph.edges(graph)) == 6
 
     source = find_vertex("a", Graph.vertices(graph))
@@ -39,13 +42,14 @@ defmodule AppleseedTest do
 
   test "thesis example2" do
     {:ok, graph} = Graph.create()
-    graph = create_vertices(["a", "b", "c", "d", "x", "y"], graph)
+    graph =
+      graph
+      |> create_vertices(["a", "b", "c", "d", "x", "y"])
+      |> add_edge("a", "b", 0.8)
+      |> add_edge("a", "c", 0.8)
+      |> add_edge("b", "d", 0.8)
+      |> add_edge("x", "y", 0.8)
     assert length(Graph.vertices(graph)) == 6
-
-    graph = add_edge("a", "b", 0.8, graph)
-    graph = add_edge("a", "c", 0.8, graph)
-    graph = add_edge("b", "d", 0.8, graph)
-    graph = add_edge("x", "y", 0.8, graph)
     assert length(Graph.edges(graph)) == 4
 
     source = find_vertex("a", Graph.vertices(graph))
@@ -53,7 +57,7 @@ defmodule AppleseedTest do
     trust(source, graph)
   end
 
-  defp create_vertices(vertices, graph) do
+  defp create_vertices(graph, vertices) do
     Enum.reduce(vertices, graph, fn e, acc ->
       {:ok, v} = V.create(e)
       {:ok, acc} = Graph.add_vertex(acc, v)
@@ -61,7 +65,7 @@ defmodule AppleseedTest do
     end)
   end
 
-  defp add_edge(s, t, w, graph) do
+  defp add_edge(graph, s, t, w) do
     vertices = Graph.vertices(graph)
     s_v = find_vertex(s, vertices)
     t_v = find_vertex(t, vertices)
