@@ -7,11 +7,12 @@ defmodule AppleseedTest do
 
   test "simple example" do
     {:ok, graph} = Graph.create()
+
     graph =
       graph
-    |> create_vertices(["a", "b", "c"])
-    |> add_edge("a", "b", 0.5)
-    |> add_edge("a", "c", 0.5)
+      |> create_vertices(["a", "b", "c"])
+      |> add_edge("a", "b", 0.5)
+      |> add_edge("a", "c", 0.5)
 
     assert length(Graph.vertices(graph)) == 3
     assert length(Graph.edges(graph)) == 2
@@ -23,6 +24,7 @@ defmodule AppleseedTest do
 
   test "thesis example" do
     {:ok, graph} = Graph.create()
+
     graph =
       graph
       |> create_vertices(["a", "b", "c", "d", "e", "f", "g"])
@@ -32,6 +34,7 @@ defmodule AppleseedTest do
       |> add_edge("d", "e", 1.0)
       |> add_edge("d", "f", 1.0)
       |> add_edge("d", "g", 1.0)
+
     assert length(Graph.vertices(graph)) == 7
     assert length(Graph.edges(graph)) == 6
 
@@ -42,6 +45,7 @@ defmodule AppleseedTest do
 
   test "thesis example2" do
     {:ok, graph} = Graph.create()
+
     graph =
       graph
       |> create_vertices(["a", "b", "c", "d", "x", "y"])
@@ -49,6 +53,7 @@ defmodule AppleseedTest do
       |> add_edge("a", "c", 0.8)
       |> add_edge("b", "d", 0.8)
       |> add_edge("x", "y", 0.8)
+
     assert length(Graph.vertices(graph)) == 6
     assert length(Graph.edges(graph)) == 4
 

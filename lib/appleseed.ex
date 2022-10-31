@@ -29,12 +29,14 @@ defmodule Appleseed do
     {new_vs, dag} =
       Enum.reduce(vs, {new_vs, dag}, fn v, acc ->
         n_vs =
-          case (v.name == source.name) do
+          case v.name == source.name do
             true ->
               update_trust(elem(acc, 0), v, 0.9999)
+
             _else ->
               update_trust(elem(acc, 0), v, @d)
           end
+
         edges = Graph.edges(elem(acc, 1))
 
         Enum.reduce(edges, {n_vs, elem(acc, 1)}, fn e, acc2 ->
@@ -63,20 +65,24 @@ defmodule Appleseed do
 
             w = comp_weight(e, new_d)
 
-            new_nv = case (v.name == source.name) do
-                       true ->
-                         %V{new_tar
-                            | energy:
-                            new_tar.energy +
-                            1 * v.energy * w
-                           }
-                       _Else ->
-                         %V{new_tar
-                            | energy:
-                            new_tar.energy +
-                            @d * v.energy * w
-                           }
-                     end
+            new_nv =
+              case v.name == source.name do
+                true ->
+                  %V{
+                    new_tar
+                    | energy:
+                        new_tar.energy +
+                          1 * v.energy * w
+                  }
+
+                _Else ->
+                  %V{
+                    new_tar
+                    | energy:
+                        new_tar.energy +
+                          @d * v.energy * w
+                  }
+              end
 
             new_vs = MapSet.delete(new_vs, new_tar)
             {MapSet.put(new_vs, new_nv), new_d}
